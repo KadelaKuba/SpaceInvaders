@@ -12,15 +12,16 @@ public class View {
     public final static int WIDTH = 800;
 
     private final GraphicsContext context;
-    private final Image backgroud, player, laser;
+    private final Image backgroud, player, laser, alien;
 
     private final Model model;
 
     View(GraphicsContext context, Model model) {
         this.context = context;
         backgroud = new Image("file:src/thegame/image/backgroundSkin.jpg");
-        player = new Image("file:src/thegame/image/player2.png");
-        laser = new Image("file:src/thegame/image/laser2.png");
+        player = new Image("file:src/thegame/image/player.png");
+        laser = new Image("file:src/thegame/image/laser.png");
+        alien = new Image("file:src/thegame/image/alien.png");
         this.model = model;
         update();
     }
@@ -36,7 +37,7 @@ public class View {
 
     public void update() {
         context.drawImage(backgroud, 0, 0, WIDTH, HEIGHT);
-        context.setStroke(Color.BLUE);
+        context.setStroke(Color.BLACK);
         context.setLineWidth(2);
         context.strokeRect(0, 0, context.getCanvas().getWidth(), context.getCanvas().getHeight());
         synchronized (model) {
@@ -45,9 +46,15 @@ public class View {
                 rotate(object.getDirection(), object.getPosition());
                 if (object instanceof Player) {
                     drawImage(player, object.getPosition());
-                } else {
+                } else if (object instanceof Laser) {
                     drawImage(laser, object.getPosition());
                 }
+                context.restore();
+            }
+            for (ModelObject object : model.getAlienObjects()) {
+                context.save();
+                rotate(object.getDirection(), object.getPosition());
+                drawImage(alien, object.getPosition());
                 context.restore();
             }
         }
