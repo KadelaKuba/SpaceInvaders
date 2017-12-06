@@ -34,7 +34,6 @@ public class Model {
     public synchronized void initGame() {
         objects.clear();
         player = new Player(new Point2D(View.WIDTH / 2, 500), new Point2D(100, 0));
-//        alien = new Alien(new Point2D(View.WIDTH / 2, 200), new Point2D(100, 0));
         objects.add(player);
 
         for (int height = 50; height <= 300; height += 100) {
@@ -69,6 +68,12 @@ public class Model {
                 objects.add(laser);
                 setNewLaserCanShoot(false);
             }
+        }
+    }
+
+    public void moveAliens() {
+        for (ModelObject alien : alienList) {
+            alien.move(20, 0);
         }
     }
 

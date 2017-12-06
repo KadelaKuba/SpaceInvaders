@@ -4,12 +4,14 @@ import java.util.ArrayList;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.util.Duration;
 
 public class Controller {
 
     private Timeline timer;
+    private Timeline alienMoving;
     private View view;
     private Model model;
 
@@ -31,7 +33,19 @@ public class Controller {
                 view.update();
             }
         }));
+
+        alienMoving = new Timeline(new KeyFrame(Duration.millis(1000), new EventHandler<javafx.event.ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                synchronized (model) {
+                    model.moveAliens();
+                }
+                view.update();
+            }
+        }));
         timer.setCycleCount(Timeline.INDEFINITE);
+        alienMoving.setCycleCount(Timeline.INDEFINITE);
+
         this.model = model;
         this.view = view;
     }
@@ -42,10 +56,12 @@ public class Controller {
 
     void stop() {
         timer.stop();
+        alienMoving.stop();
     }
 
     void start() {
         view.update();
         timer.play();
+        alienMoving.play();
     }
 }
