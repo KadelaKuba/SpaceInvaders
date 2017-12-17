@@ -59,24 +59,6 @@ public class TheGame extends Application {
         view = new View(canvas.getGraphicsContext2D(), model);
         controller = new Controller(view, model);
 
-        canvas.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent event) {
-                if (event.getCode() == KeyCode.LEFT) {
-                    model.movePlayer(-15);
-                    view.update();
-                }
-                if (event.getCode() == KeyCode.RIGHT) {
-                    model.movePlayer(15);
-                    view.update();
-                }
-                if (event.getCode() == KeyCode.SHIFT) {
-                    model.shot();
-                    view.update();
-                }
-            }
-        });
-
         basePane.getChildren().add(root);
         AnchorPane.setBottomAnchor(root, 0.0);
         AnchorPane.setLeftAnchor(root, 0.0);
@@ -87,6 +69,24 @@ public class TheGame extends Application {
         primaryStage.setTitle("The Game");
         primaryStage.setScene(scene);
         primaryStage.show();
+
+        scene.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                if (event.getCode() == KeyCode.LEFT) {
+                    model.movePlayer(-10);
+                    view.update();
+                }
+                if (event.getCode() == KeyCode.RIGHT) {
+                    model.movePlayer(10);
+                    view.update();
+                }
+                if (event.getCode() == KeyCode.SHIFT) {
+                    model.shot();
+                    view.update();
+                }
+            }
+        });
     }
 
     /**

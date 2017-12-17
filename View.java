@@ -16,6 +16,14 @@ public class View {
 
     private final Model model;
 
+    public Image getLaser() {
+        return laser;
+    }
+
+    public Image getAlien() {
+        return alien;
+    }
+
     View(GraphicsContext context, Model model) {
         this.context = context;
         backgroud = new Image("file:src/thegame/image/backgroundSkin.jpg");

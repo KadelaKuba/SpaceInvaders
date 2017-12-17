@@ -1,5 +1,6 @@
 package thegame;
 
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 import javafx.animation.KeyFrame;
@@ -27,8 +28,18 @@ public class Controller {
                             model.setNewLaserCanShoot(true);
                             toDelete.add(object);
                         }
+                        if (object instanceof Laser) {
+                            for (ModelObject alien : model.getAlienObjects()) {
+                                if (model.solveCollison(object, alien, view)) {
+                                    toDelete.add(alien);
+                                    toDelete.add(object);
+                                }
+                            }
+                        }
                     }
                     model.getObjects().removeAll(toDelete);
+                    model.getAlienObjects().removeAll(toDelete);
+                    model.setNewLaserCanShoot(true);
                 }
                 view.update();
             }
