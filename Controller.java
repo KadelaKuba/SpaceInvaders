@@ -8,6 +8,8 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.util.Duration;
 
+import javax.swing.*;
+
 public class Controller {
 
     private Timeline timer;
@@ -21,20 +23,54 @@ public class Controller {
             @Override
             public void handle(javafx.event.ActionEvent event) {
                 synchronized (model) { // zamek vlákna
+                    if (model.getLives() <= 0) {
+                        stop();
+                        JOptionPane.showMessageDialog(null, "Game over. To start again reopen the app");
+                    }
+                    if (model.getAlienObjects().isEmpty()) {
+                        model.setSectionOfMoving(2);
+                        model.setLevel(1);
+                        if (model.getLevel() % 3 == 0) {
+                            model.initBossFight();
+                            model.setBossHP(100);
+                        } else {
+                            model.initGame();
+                        }
+                    }
                     ArrayList<ModelObject> toDelete = new ArrayList<>();
                     for (ModelObject object : model.getObjects()) {
                         object.process();
-                        if (object instanceof PlayerLaser) {
-                            if (object.isOutOfSpace()) {
+                        if (object.isOutOfSpace()) {
+                            if (object instanceof PlayerLaser) {
                                 model.setNewLaserCanShoot(true);
-                                toDelete.add(object);
                             }
+                            toDelete.add(object);
+                        }
+                        if (object instanceof PlayerLaser) {
                             for (ModelObject alien : model.getAlienObjects()) {
                                 if (model.solveCollison(object, alien, view)) {
-                                    toDelete.add(alien);
-                                    model.setScore(100);
+                                    if (alien instanceof Boss) {
+                                        model.setBossHP(-100);
+                                        if (model.getBossHP() == 0) {
+                                            model.setScore(500);
+                                            toDelete.add(alien);
+                                        }
+                                    } else {
+                                        model.setScore(100);
+                                        toDelete.add(alien);
+                                    }
                                     toDelete.add(object);
                                     model.setNewLaserCanShoot(true);
+                                }
+                            }
+                        }
+                        if (object instanceof AlienShot) {
+                            for (ModelObject modelObject : model.getObjects()) {
+                                if (modelObject instanceof Player) {
+                                    if (model.solveCollison(object, modelObject, view)) {
+                                        toDelete.add(object);
+                                        model.setLives(-1);
+                                    }
                                 }
                             }
                         }
@@ -43,6 +79,7 @@ public class Controller {
                     model.getAlienObjects().removeAll(toDelete);
                 }
                 view.update();
+                view.showScore(model.getScore(), model.getLives());
             }
         }));
 
@@ -50,7 +87,7 @@ public class Controller {
             @Override
             public void handle(ActionEvent event) {
                 synchronized (model) {
-                    model.moveAliens();
+                    model.moveAliens(view);
                 }
                 view.update();
             }

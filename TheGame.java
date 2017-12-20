@@ -37,6 +37,7 @@ public class TheGame extends Application {
                     btnStart.setText("Start game");
                 } else {
                     model.initGame();
+                    model.initBossFight();
                     controller.start();
                     btnStart.setText("Stop game");
                 }
@@ -66,7 +67,7 @@ public class TheGame extends Application {
         AnchorPane.setTopAnchor(root, 30.0);
 
         Scene scene = new Scene(basePane, 800, 630);
-        primaryStage.setTitle("The Game");
+        primaryStage.setTitle("Space Invaders");
         primaryStage.setScene(scene);
         primaryStage.show();
 
