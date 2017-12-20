@@ -1,6 +1,7 @@
 package thegame;
 
 import javafx.geometry.Point2D;
+import javafx.scene.image.Image;
 
 public class PlayerLaser extends ModelObject {
 
@@ -14,6 +15,11 @@ public class PlayerLaser extends ModelObject {
     @Override
     public void process() {
         move(speedVector.getX(), speedVector.getY());
+    }
+
+    @Override
+    public Image getImage(View view) {
+        return view.getLaser();
     }
 
 }

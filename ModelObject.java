@@ -1,6 +1,7 @@
 package thegame;
 
 import javafx.geometry.Point2D;
+import javafx.scene.image.Image;
 
 public abstract class ModelObject {
 
@@ -53,4 +54,6 @@ public abstract class ModelObject {
     }
 
     public abstract void process();
+
+    public abstract Image getImage(View view);
 }

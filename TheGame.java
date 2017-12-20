@@ -32,12 +32,10 @@ public class TheGame extends Application {
             @Override
             public void handle(ActionEvent event) {
                 if (controller.isRunning()) {
-                    //action.stop();
                     controller.stop();
                     btnStart.setText("Start game");
                 } else {
-                    model.initGame();
-                    model.initBossFight();
+                    model.newGame();
                     controller.start();
                     btnStart.setText("Stop game");
                 }

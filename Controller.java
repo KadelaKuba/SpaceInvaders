@@ -23,10 +23,9 @@ public class Controller {
             @Override
             public void handle(javafx.event.ActionEvent event) {
                 synchronized (model) { // zamek vlákna
-                    if (model.getLives() <= 0) {
-                        stop();
-                        JOptionPane.showMessageDialog(null, "Game over. To start again reopen the app");
-                    }
+//                    if (model.getLives() <= 0) {
+//                        showGameOver();
+//                    }
                     if (model.getAlienObjects().isEmpty()) {
                         model.setSectionOfMoving(2);
                         model.setLevel(1);
@@ -46,9 +45,16 @@ public class Controller {
                             }
                             toDelete.add(object);
                         }
+                        if (object instanceof Player) {
+                            for (ModelObject alien : model.getAlienObjects()) {
+                                if (model.isCollision(object, alien, view)) {
+                                    showGameOver();
+                                }
+                            }
+                        }
                         if (object instanceof PlayerLaser) {
                             for (ModelObject alien : model.getAlienObjects()) {
-                                if (model.solveCollison(object, alien, view)) {
+                                if (model.isCollision(object, alien, view)) {
                                     if (alien instanceof Boss) {
                                         model.setBossHP(-100);
                                         if (model.getBossHP() == 0) {
@@ -67,7 +73,7 @@ public class Controller {
                         if (object instanceof AlienShot) {
                             for (ModelObject modelObject : model.getObjects()) {
                                 if (modelObject instanceof Player) {
-                                    if (model.solveCollison(object, modelObject, view)) {
+                                    if (model.isCollision(object, modelObject, view)) {
                                         toDelete.add(object);
                                         model.setLives(-1);
                                     }
@@ -83,7 +89,7 @@ public class Controller {
             }
         }));
 
-        alienMoving = new Timeline(new KeyFrame(Duration.millis(1000), new EventHandler<javafx.event.ActionEvent>() {
+        alienMoving = new Timeline(new KeyFrame(Duration.millis(700), new EventHandler<javafx.event.ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 synchronized (model) {
@@ -126,5 +132,10 @@ public class Controller {
         timer.play();
         alienMoving.play();
         alienShots.play();
+    }
+
+    public void showGameOver() {
+        stop();
+        JOptionPane.showMessageDialog(null, "Game over. To start again reopen the app");
     }
 }

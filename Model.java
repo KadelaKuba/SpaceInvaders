@@ -11,7 +11,7 @@ public class Model {
     private ArrayList<ModelObject> objects = new ArrayList<>();
     private ArrayList<ModelObject> alienList = new ArrayList<>();
     private ModelObject player;
-    private boolean newLaserCanShoot, moveRight, isOnlyBoss;
+    private boolean newLaserCanShoot, moveRight, isOnlyBoss, isNewGame;
     private int score, lives, sectionOfMoving, level, bossHP;
 
     public ArrayList<ModelObject> getObjects() {
@@ -20,17 +20,6 @@ public class Model {
 
     public ArrayList<ModelObject> getAlienObjects() {
         return this.alienList;
-    }
-
-    public Model() {
-        this.newLaserCanShoot = true;
-        this.score = 0;
-        this.lives = 3;
-        this.sectionOfMoving = 1;
-        this.moveRight = true;
-        this.isOnlyBoss = false;
-        this.level = 1;
-        this.bossHP = 500;
     }
 
     public void setScore(int score) {
@@ -49,11 +38,79 @@ public class Model {
         return this.newLaserCanShoot;
     }
 
+    public int getLives() {
+        return lives;
+    }
+
+    public void setLives(int lives) {
+        this.lives += lives;
+    }
+
+    public int getSectionOfMoving() {
+        return sectionOfMoving;
+    }
+
+    public void setSectionOfMoving(int sectionOfMoving) {
+        this.sectionOfMoving += sectionOfMoving;
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    public void setLevel(int level) {
+        this.level += level;
+    }
+
+    public int getBossHP() {
+        return bossHP;
+    }
+
+    public void setBossHP(int bossHP) {
+        this.bossHP += bossHP;
+    }
+
+    public Model() {
+        this.newLaserCanShoot = true;
+        this.score = 0;
+        this.lives = 3;
+        this.sectionOfMoving = 1;
+        this.moveRight = true;
+        this.isOnlyBoss = false;
+        this.level = 1;
+        this.bossHP = 1000;
+    }
+
     public synchronized void initGame() {
         objects.clear();
         alienList.clear();
         moveRight = true;
+        newLaserCanShoot = true;
         isOnlyBoss = false;
+        player = new Player(new Point2D(View.WIDTH / 2, 500), new Point2D(100, 0));
+        objects.add(player);
+
+        for (int height = 50; height <= 300; height += 100) {
+            for (int width = 200; width <= View.WIDTH - 200; width += 100) {
+                ModelObject alien = new Alien(new Point2D(width, height), new Point2D(100, 0));
+                alienList.add(alien);
+            }
+        }
+    }
+
+    public synchronized void newGame() {
+        newLaserCanShoot = true;
+        score = 0;
+        lives = 3;
+        sectionOfMoving = 1;
+        moveRight = true;
+        isOnlyBoss = false;
+        level = 1;
+        bossHP = 1000;
+
+        objects.clear();
+        alienList.clear();
+
         player = new Player(new Point2D(View.WIDTH / 2, 500), new Point2D(100, 0));
         objects.add(player);
 
@@ -70,6 +127,7 @@ public class Model {
         alienList.clear();
         moveRight = true;
         isOnlyBoss = true;
+        bossHP = 1000;
         ModelObject boss = new Boss(new Point2D(View.WIDTH / 2, 200), new Point2D(100, 0), new Point2D(20, 0));
         alienList.add(boss);
         player = new Player(new Point2D(View.WIDTH / 2, 500), new Point2D(100, 0));
@@ -146,26 +204,18 @@ public class Model {
         }
     }
 
-    public boolean solveCollison(ModelObject laser, ModelObject alien, View view) {
-        Image monster = (isOnlyBoss) ? view.getBoss() : view.getAlien();
-
-        double LaserHalfWidth = view.getLaser().getWidth() / 2;
-        double laserHalfHeight = view.getLaser().getHeight() / 2;
-        double alienHalfWidth = monster.getWidth() / 2;
-        double alienHalfHeight = monster.getHeight() / 2;
-
-
+    public boolean isCollision(ModelObject object1, ModelObject object2, View view) {
         double Xa1, Ya1, Xa2, Ya2, Xb1, Yb1, Xb2, Yb2;
 
-        Xa1 = laser.getX() - LaserHalfWidth;
-        Ya1 = laser.getY() - laserHalfHeight;
-        Xa2 = laser.getX() + LaserHalfWidth;
-        Ya2 = laser.getY() + laserHalfHeight;
+        Xa1 = object1.getX() - object1.getImage(view).getWidth() / 2;
+        Ya1 = object1.getY() - object1.getImage(view).getHeight() / 2;
+        Xa2 = object1.getX() + object1.getImage(view).getWidth() / 2;
+        Ya2 = object1.getY() + object1.getImage(view).getHeight() / 2;
 
-        Xb1 = alien.getX() - alienHalfWidth;
-        Yb1 = alien.getY() - alienHalfHeight;
-        Xb2 = alien.getX() + alienHalfWidth;
-        Yb2 = alien.getY() + alienHalfHeight;
+        Xb1 = object2.getX() - object2.getImage(view).getWidth() / 2;
+        Yb1 = object2.getY() - object2.getImage(view).getHeight() / 2;
+        Xb2 = object2.getX() + object2.getImage(view).getWidth() / 2;
+        Yb2 = object2.getY() + object2.getImage(view).getHeight() / 2;
 
         return ((Xb1 - Xa2) * (Xb2 - Xa1) <= 0) && ((Yb1 - Ya2) * (Yb2 - Ya1) <= 0);
     }
@@ -174,22 +224,6 @@ public class Model {
         for (ModelObject alien : alienList) {
             alien.move(0, 20);
         }
-    }
-
-    public int getLives() {
-        return lives;
-    }
-
-    public void setLives(int lives) {
-        this.lives += lives;
-    }
-
-    public int getSectionOfMoving() {
-        return sectionOfMoving;
-    }
-
-    public void setSectionOfMoving(int sectionOfMoving) {
-        this.sectionOfMoving += sectionOfMoving;
     }
 
     public ModelObject getMostRightAlienInList() {
@@ -214,21 +248,5 @@ public class Model {
         }
 
         return tmp;
-    }
-
-    public int getLevel() {
-        return level;
-    }
-
-    public void setLevel(int level) {
-        this.level += level;
-    }
-
-    public int getBossHP() {
-        return bossHP;
-    }
-
-    public void setBossHP(int bossHP) {
-        this.bossHP += bossHP;
     }
 }
