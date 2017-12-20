@@ -82,7 +82,7 @@ public class TheGame extends Application {
                     view.update();
                 }
                 if (event.getCode() == KeyCode.SHIFT) {
-                    model.shot();
+                    model.playerShot();
                     view.update();
                 }
             }

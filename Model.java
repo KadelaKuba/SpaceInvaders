@@ -1,18 +1,19 @@
 package thegame;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import javafx.geometry.Point2D;
-
-import javax.swing.text.Position;
 
 public class Model {
 
     private ArrayList<ModelObject> objects = new ArrayList<>();
     private ArrayList<ModelObject> alienList = new ArrayList<>();
+    private ArrayList<ModelObject> alienShots = new ArrayList<>();
     private ModelObject player;
     private boolean newLaserCanShoot;
-    boolean right = true;
+    private boolean moveRight = true;
+    private int score;
 
     public ArrayList<ModelObject> getObjects() {
         return this.objects;
@@ -22,8 +23,21 @@ public class Model {
         return this.alienList;
     }
 
+    public ArrayList<ModelObject> getAlienShots() {
+        return this.alienShots;
+    }
+
     public Model() {
         this.newLaserCanShoot = true;
+        this.score = 0;
+    }
+
+    public void setScore(int score) {
+        this.score += score;
+    }
+
+    public int getScore() {
+        return this.score;
     }
 
     public void setNewLaserCanShoot(boolean newLaserCanShoot) {
@@ -55,8 +69,9 @@ public class Model {
         }
     }
 
-    public synchronized void shot() {
+    public synchronized void playerShot() {
         if (player != null) {
+            System.out.println(this.getNewLaserCanShoot());
             if (this.getNewLaserCanShoot()) {
                 Point2D target = new Point2D(player.getX(), 0);
                 Point2D player = this.player.getPosition();
@@ -66,57 +81,80 @@ public class Model {
                 speed = speed.multiply(10);
                 Point2D laserStartPosition = player.add(speed.multiply(7));
 
-                Laser laser = new Laser(laserStartPosition, new Point2D(100, 0), speed);
-                laser.setDirectionToPoint(laserStartPosition.add(speed.multiply(10)));
-                objects.add(laser);
+                PlayerLaser playerLaser = new PlayerLaser(laserStartPosition, new Point2D(100, 0), speed);
+                playerLaser.setDirectionToPoint(laserStartPosition.add(speed.multiply(10)));
+                objects.add(playerLaser);
                 setNewLaserCanShoot(false);
             }
         }
     }
 
+    public synchronized void alienShot() {
+        if (alienShots != null) {
+            Random rand = new Random();
+            int indexOfAlien = rand.nextInt((alienList.size() - 1) + 1);
+            Point2D target = new Point2D(alienList.get(indexOfAlien).getX(), View.HEIGHT);
+            Point2D alien = this.alienList.get(indexOfAlien).getPosition();
+            Point2D speed = target.subtract(alien);
+
+            speed = speed.normalize();
+            speed = speed.multiply(10);
+            Point2D laserStartPosition = alien.add(speed.multiply(7));
+
+            AlienShot alienShot = new AlienShot(laserStartPosition, new Point2D(100, 0), speed);
+            alienShot.setDirectionToPoint(laserStartPosition.add(speed.multiply(10)));
+            objects.add(alienShot);
+        }
+    }
+
     public void moveAliens() {
-        if (this.right) {
-            for (ModelObject alien : alienList) {
-                alien.move(30, 0);
-            }
-            if (alienList.get(alienList.size() - 1).getX() >= 750) {
-                this.right = false;
+        if (alienList != null) {
+            if (this.moveRight) {
+                for (ModelObject alien : alienList) {
+                    alien.move(30, 0);
+                }
+                if (alienList.get(alienList.size() - 1).getX() >= 750) {
+                    this.moveRight = false;
+                    moveAliensDown();
+                }
+            } else {
+                for (ModelObject alien : alienList) {
+                    alien.move(-30, 0);
+                }
 
-            }
-        } else {
-            for (ModelObject alien : alienList) {
-                alien.move(-30, 0);
-            }
-
-            if (alienList.get(0).getX() <= 50) {
-                this.right = true;
-
+                if (alienList.get(0).getX() <= 50) {
+                    this.moveRight = true;
+                    moveAliensDown();
+                }
             }
         }
     }
 
     public boolean solveCollison(ModelObject laser, ModelObject alien, View view) {
-        double xbombimg = view.getLaser().getWidth() / 2;
-        double ybombimg = view.getLaser().getHeight() / 2;
-        double xmonsterimg = view.getAlien().getWidth() / 2;
-        double ymonsterimg = view.getAlien().getHeight() / 2;
+        double LaserHalfWidth = view.getLaser().getWidth() / 2;
+        double laserHalfHeight = view.getLaser().getHeight() / 2;
+        double alienHalfWidth = view.getAlien().getWidth() / 2;
+        double alienHalfHeight = view.getAlien().getHeight() / 2;
 
 
         double Xa1, Ya1, Xa2, Ya2, Xb1, Yb1, Xb2, Yb2;
 
-        Xa1 = laser.getX() - xbombimg;
-        Ya1 = laser.getY() - ybombimg;
-        Xa2 = laser.getX() + xbombimg;
-        Ya2 = laser.getY() + ybombimg;
+        Xa1 = laser.getX() - LaserHalfWidth;
+        Ya1 = laser.getY() - laserHalfHeight;
+        Xa2 = laser.getX() + LaserHalfWidth;
+        Ya2 = laser.getY() + laserHalfHeight;
 
-        Xb1 = alien.getX() - xmonsterimg;
-        Yb1 = alien.getY() - ymonsterimg;
-        Xb2 = alien.getX() + xmonsterimg;
-        Yb2 = alien.getY() + ymonsterimg;
+        Xb1 = alien.getX() - alienHalfWidth;
+        Yb1 = alien.getY() - alienHalfHeight;
+        Xb2 = alien.getX() + alienHalfWidth;
+        Yb2 = alien.getY() + alienHalfHeight;
 
-        if (((Xb1 - Xa2) * (Xb2 - Xa1) <= 0) && ((Yb1 - Ya2) * (Yb2 - Ya1) <= 0)) {
-            return true;
+        return ((Xb1 - Xa2) * (Xb2 - Xa1) <= 0) && ((Yb1 - Ya2) * (Yb2 - Ya1) <= 0);
+    }
+
+    private void moveAliensDown() {
+        for (ModelObject alien : alienList) {
+            alien.move(0, 20);
         }
-        return false;
     }
 }

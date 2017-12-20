@@ -2,11 +2,11 @@ package thegame;
 
 import javafx.geometry.Point2D;
 
-public class Laser extends ModelObject {
+public class AlienShot extends ModelObject {
 
     Point2D speedVector;
 
-    public Laser(Point2D position, Point2D imageOffset, Point2D speedVector) {
+    public AlienShot(Point2D position, Point2D imageOffset, Point2D speedVector) {
         super(position, imageOffset);
         this.speedVector = speedVector;
     }

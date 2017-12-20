@@ -1,6 +1,5 @@
 package thegame;
 
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 import javafx.animation.KeyFrame;
@@ -13,6 +12,7 @@ public class Controller {
 
     private Timeline timer;
     private Timeline alienMoving;
+    private Timeline alienShots;
     private View view;
     private Model model;
 
@@ -24,22 +24,23 @@ public class Controller {
                     ArrayList<ModelObject> toDelete = new ArrayList<>();
                     for (ModelObject object : model.getObjects()) {
                         object.process();
-                        if (object.isOutOfSpace()) {
-                            model.setNewLaserCanShoot(true);
-                            toDelete.add(object);
-                        }
-                        if (object instanceof Laser) {
+                        if (object instanceof PlayerLaser) {
+                            if (object.isOutOfSpace()) {
+                                model.setNewLaserCanShoot(true);
+                                toDelete.add(object);
+                            }
                             for (ModelObject alien : model.getAlienObjects()) {
                                 if (model.solveCollison(object, alien, view)) {
                                     toDelete.add(alien);
+                                    model.setScore(100);
                                     toDelete.add(object);
+                                    model.setNewLaserCanShoot(true);
                                 }
                             }
                         }
                     }
                     model.getObjects().removeAll(toDelete);
                     model.getAlienObjects().removeAll(toDelete);
-                    model.setNewLaserCanShoot(true);
                 }
                 view.update();
             }
@@ -54,8 +55,20 @@ public class Controller {
                 view.update();
             }
         }));
+
+        alienShots = new Timeline(new KeyFrame(Duration.millis(2000), new EventHandler<javafx.event.ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                synchronized (model) {
+                    model.alienShot();
+                }
+                view.update();
+            }
+        }));
+
         timer.setCycleCount(Timeline.INDEFINITE);
         alienMoving.setCycleCount(Timeline.INDEFINITE);
+        alienShots.setCycleCount(Timeline.INDEFINITE);
 
         this.model = model;
         this.view = view;
@@ -68,11 +81,13 @@ public class Controller {
     void stop() {
         timer.stop();
         alienMoving.stop();
+        alienShots.stop();
     }
 
     void start() {
         view.update();
         timer.play();
         alienMoving.play();
+        alienShots.play();
     }
 }

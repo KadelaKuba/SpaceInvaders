@@ -54,7 +54,9 @@ public class View {
                 rotate(object.getDirection(), object.getPosition());
                 if (object instanceof Player) {
                     drawImage(player, object.getPosition());
-                } else if (object instanceof Laser) {
+                } else if (object instanceof PlayerLaser) {
+                    drawImage(laser, object.getPosition());
+                } else if (object instanceof AlienShot) {
                     drawImage(laser, object.getPosition());
                 }
                 context.restore();
