@@ -23,9 +23,9 @@ public class Controller {
             @Override
             public void handle(javafx.event.ActionEvent event) {
                 synchronized (model) { // zamek vlákna
-//                    if (model.getLives() <= 0) {
-//                        showGameOver();
-//                    }
+                    if (model.getLives() <= 0) {
+                        showGameOver();
+                    }
                     if (model.getAlienObjects().isEmpty()) {
                         model.setSectionOfMoving(2);
                         model.setLevel(1);
@@ -136,6 +136,6 @@ public class Controller {
 
     public void showGameOver() {
         stop();
-        JOptionPane.showMessageDialog(null, "Game over. To start again reopen the app");
+        JOptionPane.showMessageDialog(null, "Game over. Your score was:  " + this.model.getScore() + "\nTo start again reopen the app!");
     }
 }
